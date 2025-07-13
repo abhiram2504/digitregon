@@ -1,25 +1,19 @@
-import torch.nn as nn
+from torch import nn
+import torch.nn.functional as F
 
-class DigitCNN(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.conv = nn.Sequential(
-            nn.Conv2d(1, 32, kernel_size=3, padding=1),  # 28x28 -> 28x28
-            nn.ReLU(),
-            nn.MaxPool2d(2),                            # 28x28 -> 14x14
+class DigitClassification(nn.Module):
+    # Input (784) → Linear(128) → ReLU → Linear(64) → ReLU → Linear(10) → Output
 
-            nn.Conv2d(32, 64, kernel_size=3, padding=1), # 14x14 -> 14x14
-            nn.ReLU(),
-            nn.MaxPool2d(2)                             # 14x14 -> 7x7
+    def __init__(self) -> None:
+        super().__init__() 
+        self.model = nn.Sequential(
+            nn.Linear(784, 128),   # Input layer → Hidden layer 1, 784 inputs and 128 outputs.
+            nn.ReLU(),             # Activation function
+            nn.Linear(128, 64),    # Hidden layer 1 → Hidden layer 2
+            nn.ReLU(),             # Activation function
+            nn.Linear(64, 10)      # Hidden layer 2 → Output layer (10 classes)
+            
         )
-        self.fc = nn.Sequential(
-            nn.Flatten(),
-            nn.Linear(64 * 7 * 7, 128),
-            nn.ReLU(),
-            nn.Linear(128, 10)
-        )
-
+        
     def forward(self, x):
-        x = self.conv(x)
-        x = self.fc(x)
-        return x
+        return self.model(x)
